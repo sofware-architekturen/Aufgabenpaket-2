@@ -10,7 +10,7 @@ import java.util.Collection;
 
 import javax.swing.JPanel;
 
-import com.buchlager.core.interfaces.IBuchlagerRemoteFacade;
+import com.buchlager.core.interfaces.IBuchlagerRemoteRepository;
 import com.buchlager.core.model.Buch;
 
 
@@ -23,13 +23,13 @@ public class JPanelBuchlagerView extends JPanel
   private CompJPanelBuchSearch jSearchComp = null;
   private CompJPanelListContainer jListContainer = null;
   private CompJPanelButtonBar jButtonBar = null;
-  private IBuchlagerRemoteFacade buchlagerRemoteFacade = null;
+  private IBuchlagerRemoteRepository buchlagerRepository = null;
 
-  public JPanelBuchlagerView(BuchlagerView buchlagerView, IBuchlagerRemoteFacade buchlagerRemoteFacade)
+  public JPanelBuchlagerView(BuchlagerView buchlagerView, IBuchlagerRemoteRepository buchlagerRepository)
   {
     super();
 
-    this.buchlagerRemoteFacade = buchlagerRemoteFacade;
+    this.buchlagerRepository = buchlagerRepository;
     this.buchlagerView = buchlagerView;
 
     this.jSearchComp = new CompJPanelBuchSearch();
@@ -68,7 +68,7 @@ public class JPanelBuchlagerView extends JPanel
         String input = jSearchComp.getTextFieldInput();
         Collection<Buch> buecher = null;
         try {
-          buecher = buchlagerRemoteFacade.findBuecherVonAutor(input);
+          buecher = buchlagerRepository.findBuecherVonAutor(input);
         } catch (RemoteException ex) {
           ex.printStackTrace();
         }

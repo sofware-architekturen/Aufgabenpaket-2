@@ -1,13 +1,9 @@
-package com.buchlager.server.facade;
+package com.buchlager.server.data.facade;
 
 import static java.util.stream.Collectors.toList;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Random;
+import java.util.*;
 
-import com.buchlager.core.interfaces.IBuchlagerRemoteFacade;
 import com.buchlager.core.model.Buch;
 import com.buchlager.core.model.ModelFactory;
 
@@ -43,7 +39,7 @@ import com.buchlager.core.model.ModelFactory;
  *
  */
 
-public class BuchlagerFacade implements IBuchlagerRemoteFacade {
+public class BuchlagerFacade{
   static private BuchlagerFacade instance = null;
 
   static private class LagerEintrag
@@ -109,7 +105,6 @@ public class BuchlagerFacade implements IBuchlagerRemoteFacade {
    *                 interne Inventarnummer (ID) des Buches
    * @return Buch
    */
-  @Override
   public Buch findBuchMitId(int buchId)
   {
     LagerEintrag eintrag = (LagerEintrag) this.lager.get(new Integer(buchId));
@@ -125,7 +120,6 @@ public class BuchlagerFacade implements IBuchlagerRemoteFacade {
    *                   Nachname des Autors ("*" am Ende zulaessig)
    * @return Sammlung von Buechern.
    */
-  @Override
   public Collection<Buch> findBuecherVonAutor(String nachname)
   {
     String suchPattern;
@@ -149,7 +143,6 @@ public class BuchlagerFacade implements IBuchlagerRemoteFacade {
    *
    * @return Sammlung von Buechern.
    */
-  @Override
   public Collection<Buch> findAlleBuecher()
   {
     return this.lager.values().stream().map(entry -> entry.getBuch() ).collect( toList() );
@@ -163,7 +156,6 @@ public class BuchlagerFacade implements IBuchlagerRemoteFacade {
    *
    * @return Anzahl aller Buecher.
    */
-  @Override
   public int getAnzahlAllerBuecher()
   {
     return this.lager.size();
@@ -180,13 +172,11 @@ public class BuchlagerFacade implements IBuchlagerRemoteFacade {
    *                                       Bei der Ausbuchung ist ein Fehler
    *                                       aufgetreten
    */
-  @Override
   public void bestandAusbuchen(int buchId, int anzahl) throws BuchlagerFacadeException
   {
     LagerEintrag eintrag = this.lager.get(new Integer(buchId));
     if (eintrag == null)
       throw new BuchlagerFacadeException("Buch-Id " + buchId + " nicht im Lager vorhanden");
-
     if (eintrag.getBestand() < anzahl)
       throw new BuchlagerFacadeException("F�r Buch-Id " + buchId + " sind nicht gen�gend Exemplare vorhanden");
 
@@ -204,7 +194,6 @@ public class BuchlagerFacade implements IBuchlagerRemoteFacade {
    *                                       Bei der Einbuchung ist ein Fehler
    *                                       aufgetreten
    */
-  @Override
   public void bestandEinbuchen(int buchId, int anzahl) throws BuchlagerFacadeException
   {
     LagerEintrag eintrag = this.lager.get(new Integer(buchId));
@@ -222,7 +211,6 @@ public class BuchlagerFacade implements IBuchlagerRemoteFacade {
    *                 interne Inventarnummer (ID) des Buches
    * @return Buchbestand.
    */
-  @Override
   public int getBestand(int buchId) throws BuchlagerFacadeException
   {
     LagerEintrag eintrag = this.lager.get(new Integer(buchId));
@@ -255,7 +243,6 @@ public class BuchlagerFacade implements IBuchlagerRemoteFacade {
    *                   Nachname des Autors ("*" am Ende zulaessig)
    * @return XML Datenstruktur.
    */
-  @Override
   public String findBuecherVonAutorAsXML(String nachname)
   {
     StringBuffer strBuf = new StringBuffer("");

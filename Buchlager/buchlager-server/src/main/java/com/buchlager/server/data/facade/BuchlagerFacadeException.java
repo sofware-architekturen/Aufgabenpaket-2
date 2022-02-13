@@ -1,4 +1,4 @@
-package com.buchlager.server.facade;
+package com.buchlager.server.data.facade;
 
 
 import java.rmi.RemoteException;

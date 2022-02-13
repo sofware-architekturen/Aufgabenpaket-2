@@ -5,7 +5,7 @@ import com.buchlager.client.ui.BuchlagerView;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
-public class Main
+public class Client
 {
   public static void main(String[] args) throws RemoteException, NotBoundException {
     // Starte der GUI

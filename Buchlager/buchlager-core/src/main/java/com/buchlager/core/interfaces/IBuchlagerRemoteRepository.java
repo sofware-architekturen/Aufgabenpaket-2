@@ -6,7 +6,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.Collection;
 
-public interface IBuchlagerRemoteFacade extends Remote {
+public interface IBuchlagerRemoteRepository extends Remote {
     Buch findBuchMitId(int buchId) throws RemoteException;
 
     Collection<Buch> findBuecherVonAutor(String nachname)throws RemoteException;
