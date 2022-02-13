@@ -56,7 +56,7 @@ public class Lieferant {
                 } catch (JMSException e) {
                     e.printStackTrace();
                 }
-                System.out.println("Lieferant hat " + bestellung + "erhaltet");
+                System.out.println("Lieferant hat " + bestellung + " bekommen");
             }
         }
     }
