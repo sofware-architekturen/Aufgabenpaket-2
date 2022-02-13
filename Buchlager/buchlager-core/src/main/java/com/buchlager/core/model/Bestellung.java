@@ -10,6 +10,8 @@ public class Bestellung implements Serializable {
     private int buchId;
     private int orderAmount;
 
+    public Bestellung() {}
+
     public Bestellung(int buchId, int orderAmount) {
         this.buchId = buchId;
         this.orderAmount = orderAmount;

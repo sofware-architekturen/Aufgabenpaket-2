@@ -47,7 +47,7 @@ public class JPanelWarenkorb extends JPanel
   {
     super();
 
-    initObserver();
+    initBestellungObserverAndSubscribers();
 
     this.buchlagerRemoteRepository = buchlagerRemoteFacade;
     this.buchlagerView = buchlagerView;
@@ -88,12 +88,12 @@ public class JPanelWarenkorb extends JPanel
           {
             buchlagerRemoteRepository.bestandAusbuchen(buch.getId(), 1);
             if(buchlagerRemoteRepository.getBestand(buch.getId()) <1 ){
-                orderBook(buch.getId(), 5);
+              orderSubject.notifyObservers(new Bestellung(buch.getId(),3));
                 new Thread(()->{
                   try {
                     TimeUnit.SECONDS.sleep(5);
-                    buchlagerRemoteRepository.bestandEinbuchen(buch.getId(), 5);
-                    System.out.println("Bestand für das Buch " + buch.getTitel() + " aktualisiert");
+                    buchlagerRemoteRepository.bestandEinbuchen(buch.getId(), 3);
+                    System.out.println("Bestand für das Buch " + buch.getTitel() + " wurde aktualisiert");
                   } catch (InterruptedException ex) {
                     ex.printStackTrace();
                   } catch (RemoteException ex) {
@@ -122,7 +122,8 @@ public class JPanelWarenkorb extends JPanel
     });
   }
 
-  private void orderBook(int bookId, int amount){
+
+  private void initBestellungObserverAndSubscribers(){
     try {
       Registry registry = LocateRegistry.getRegistry();
       jmsOrderNotificationService = (IRemoteObserver<Bestellung>) registry.lookup("rmi://methods/jmsobserver");
@@ -132,19 +133,10 @@ public class JPanelWarenkorb extends JPanel
       orderSubject.register(jmsOrderNotificationService);
       orderSubject.register(restOrderNotificationService);
 
-      orderSubject.register(jmsOrderNotificationService);
-      orderSubject.register(restOrderNotificationService);
-      orderSubject.notifyObservers(new Bestellung(bookId,amount));
-
-      orderSubject.clear();
     } catch (RemoteException ex) {
       ex.printStackTrace();
     } catch (NotBoundException ex) {
       ex.printStackTrace();
     }
-  }
-
-  private void initObserver(){
-
   }
 }
