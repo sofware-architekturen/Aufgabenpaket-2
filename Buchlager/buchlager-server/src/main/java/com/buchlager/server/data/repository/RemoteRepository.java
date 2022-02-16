@@ -1,25 +1,30 @@
 package com.buchlager.server.data.repository;
 
-import com.buchlager.core.interfaces.IBuchlagerRemoteRepository;
+import com.buchlager.core.interfaces.IBuchlagerRepository;
 import com.buchlager.core.model.Buch;
 import com.buchlager.server.data.facade.BuchlagerFacade;
+import com.buchlager.server.services.order.OrderService;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.Collection;
 
-public class RemoteRepository implements IBuchlagerRemoteRepository, Serializable {
+public class RemoteRepository implements IBuchlagerRepository, Serializable {
     private static final long serialVersionUID = 15454L;
 
-    private BuchlagerFacade facade = null;
+    private BuchlagerFacade facade;
+    private OrderService orderService;
 
     public RemoteRepository() {
         facade = BuchlagerFacade.getInstance();
+        orderService = new OrderService(this);
     }
 
     @Override
     public synchronized Buch findBuchMitId(int buchId) throws RemoteException {
+        synchronized (facade){
             return facade.findBuchMitId(buchId);
+        }
     }
 
     @Override
@@ -31,31 +36,47 @@ public class RemoteRepository implements IBuchlagerRemoteRepository, Serializabl
 
     @Override
     public synchronized Collection<Buch> findAlleBuecher() throws RemoteException {
-        return facade.findAlleBuecher();
+        synchronized (facade){
+            return facade.findAlleBuecher();
+        }
     }
 
     @Override
     public synchronized int getAnzahlAllerBuecher() throws RemoteException {
-        return facade.getAnzahlAllerBuecher();
+        synchronized (facade){
+            return facade.getAnzahlAllerBuecher();
+        }
     }
 
     @Override
     public synchronized void bestandAusbuchen(int buchId, int anzahl) throws RemoteException {
-        facade.bestandAusbuchen(buchId, anzahl);
+        if(getBestand(buchId) >= 1) {
+            synchronized (facade){
+                facade.bestandAusbuchen(buchId, anzahl);
+            }
+        }else {
+            orderService.makeOrder(buchId);
+        }
     }
 
     @Override
     public synchronized void bestandEinbuchen(int buchId, int anzahl) throws RemoteException {
-        facade.bestandEinbuchen(buchId, anzahl);
+        synchronized (facade){
+            facade.bestandEinbuchen(buchId, anzahl);
+        }
     }
 
     @Override
     public synchronized int getBestand(int buchId) throws RemoteException {
-        return facade.getBestand(buchId);
+        synchronized (facade){
+            return facade.getBestand(buchId);
+        }
     }
 
     @Override
     public synchronized String findBuecherVonAutorAsXML(String nachname) throws RemoteException {
-        return facade.findBuecherVonAutorAsXML(nachname);
+        synchronized (facade){
+            return facade.findBuecherVonAutorAsXML(nachname);
+        }
     }
 }

@@ -1,18 +1,17 @@
-package com.buchlager.server.services;
+package com.buchlager.server.services.observer;
 
-import com.buchlager.core.interfaces.IRemoteObserver;
+import com.buchlager.core.interfaces.IObserver;
 import com.buchlager.core.model.Bestellung;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 import javax.jms.*;
 import java.io.Serializable;
-import java.rmi.RemoteException;
 
-public class JMSOrderNotificationService implements IRemoteObserver<Bestellung>, Serializable {
+public class JMSOrderNotificationService implements IObserver<Bestellung>, Serializable {
     private static final long serialVersionUID = 1L;
 
     @Override
-    public void update(Bestellung bestellung) throws RemoteException {
+    public void update(Bestellung bestellung){
         try {
             ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(ActiveMQConnectionFactory.DEFAULT_BROKER_URL);
             Connection connection = connectionFactory.createConnection();

@@ -4,12 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.util.Enumeration;
-import java.util.concurrent.TimeUnit;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -18,12 +14,8 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import com.buchlager.core.interfaces.IRemoteObserver;
-import com.buchlager.core.interfaces.IRemoteSubject;
-import com.buchlager.core.model.Bestellung;
+import com.buchlager.core.interfaces.IBuchlagerRepository;
 import com.buchlager.core.model.Buch;
-import com.buchlager.core.interfaces.IBuchlagerRemoteRepository;
-
 
 public class JPanelWarenkorb extends JPanel
 {
@@ -37,19 +29,14 @@ public class JPanelWarenkorb extends JPanel
   private JButton backButton = new JButton("Zurück");
   private JButton kaufenButton = new JButton("Kaufen");
 
-  private IBuchlagerRemoteRepository buchlagerRemoteRepository = null;
-  private IRemoteObserver jmsOrderNotificationService = null;
-  private IRemoteObserver restOrderNotificationService = null;
-  private IRemoteSubject orderSubject = null;
+  private IBuchlagerRepository repository = null;
 
 
-  public JPanelWarenkorb(BuchlagerView buchlagerView, IBuchlagerRemoteRepository buchlagerRemoteFacade)
+  public JPanelWarenkorb(BuchlagerView buchlagerView, IBuchlagerRepository buchlagerRemoteFacade)
   {
     super();
 
-    initBestellungObserverAndSubscribers();
-
-    this.buchlagerRemoteRepository = buchlagerRemoteFacade;
+    this.repository = buchlagerRemoteFacade;
     this.buchlagerView = buchlagerView;
     this.content.setModel(  this.model );
     this.setLayout( new BorderLayout() );
@@ -68,7 +55,6 @@ public class JPanelWarenkorb extends JPanel
     this.initListener();
   }
 
-
   public void addBuch(Buch buch)
   {
       this.model.addElement(buch);
@@ -86,23 +72,8 @@ public class JPanelWarenkorb extends JPanel
           Buch buch = en.nextElement();
           try
           {
-            buchlagerRemoteRepository.bestandAusbuchen(buch.getId(), 1);
-            if(buchlagerRemoteRepository.getBestand(buch.getId()) <1 ){
-              orderSubject.notifyObservers(new Bestellung(buch.getId(),3));
-                new Thread(()->{
-                  try {
-                    TimeUnit.SECONDS.sleep(5);
-                    buchlagerRemoteRepository.bestandEinbuchen(buch.getId(), 3);
-                    System.out.println("Bestand für das Buch " + buch.getTitel() + " wurde aktualisiert");
-                  } catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                  } catch (RemoteException ex) {
-                    ex.printStackTrace();
-                  }
-                }).start();
-            }
-            System.out.println("Das Buch " + buch.getTitel() + " wird versendet");
-
+            System.out.println(repository.getBestand(buch.getId()) >= 1 ? "Das Buch " + buch.getTitel() + " wird versendet" : "Das Buch " + buch.getTitel() + " wird nachbestellt");
+            repository.bestandAusbuchen(buch.getId(), 1);
           }
           catch (RemoteException e1)
           {
@@ -112,7 +83,6 @@ public class JPanelWarenkorb extends JPanel
         model.removeAllElements();
       }
     });
-
     this.backButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e)
@@ -120,23 +90,5 @@ public class JPanelWarenkorb extends JPanel
         buchlagerView.showSearch();
       }
     });
-  }
-
-
-  private void initBestellungObserverAndSubscribers(){
-    try {
-      Registry registry = LocateRegistry.getRegistry();
-      jmsOrderNotificationService = (IRemoteObserver<Bestellung>) registry.lookup("rmi://methods/jmsobserver");
-      restOrderNotificationService = (IRemoteObserver<Bestellung>) registry.lookup("rmi://methods/restobserver");
-      orderSubject = (IRemoteSubject<Bestellung>) registry.lookup("rmi://methods/subject");
-
-      orderSubject.register(jmsOrderNotificationService);
-      orderSubject.register(restOrderNotificationService);
-
-    } catch (RemoteException ex) {
-      ex.printStackTrace();
-    } catch (NotBoundException ex) {
-      ex.printStackTrace();
-    }
   }
 }

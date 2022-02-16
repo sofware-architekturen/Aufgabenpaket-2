@@ -10,7 +10,7 @@ import java.util.Collection;
 
 import javax.swing.JPanel;
 
-import com.buchlager.core.interfaces.IBuchlagerRemoteRepository;
+import com.buchlager.core.interfaces.IBuchlagerRepository;
 import com.buchlager.core.model.Buch;
 
 
@@ -23,13 +23,13 @@ public class JPanelBuchlagerView extends JPanel
   private CompJPanelBuchSearch jSearchComp = null;
   private CompJPanelListContainer jListContainer = null;
   private CompJPanelButtonBar jButtonBar = null;
-  private IBuchlagerRemoteRepository buchlagerRepository = null;
+  private IBuchlagerRepository buchlagerRepository = null;
 
-  public JPanelBuchlagerView(BuchlagerView buchlagerView, IBuchlagerRemoteRepository buchlagerRepository)
+  public JPanelBuchlagerView(BuchlagerView buchlagerView, IBuchlagerRepository buchlagerRepository)
   {
     super();
-
     this.buchlagerRepository = buchlagerRepository;
+
     this.buchlagerView = buchlagerView;
 
     this.jSearchComp = new CompJPanelBuchSearch();
